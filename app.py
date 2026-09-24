@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import sqlite3
 
 app = Flask(__name__)
@@ -22,6 +22,27 @@ def test():
         "status": "success"
     })
 
+@app.route("/register", methods=["POST"])
+def register():
+    data = request.get_json()
+
+    name = data["name"]
+    email = data["email"]
+    password = data["password"]
+
+    connection = get_db_connection()
+
+    connection.execute(
+        "INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
+        (name, email, password)
+    )
+
+    connection.commit()
+    connection.close()
+
+    return jsonify({
+        "message": "User registered successfully"
+    })
 
 if __name__ == "__main__":
     app.run(debug=True)
