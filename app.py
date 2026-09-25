@@ -43,6 +43,32 @@ def register():
     return jsonify({
         "message": "User registered successfully"
     })
+@app.route("/login", methods=["POST"])
+def login():
+    data = request.get_json()
+
+    email = data["email"]
+    password = data["password"]
+
+    connection = get_db_connection()
+
+    user = connection.execute(
+        "SELECT * FROM users WHERE email = ? AND password = ?",
+        (email, password)
+    ).fetchone()
+
+    connection.close()
+
+    if user:
+        return jsonify({
+            "message": "Login successful",
+            "user_id": user["id"],
+            "name": user["name"]
+        })
+
+    return jsonify({
+        "message": "Invalid email or password"
+    }), 401
 
 if __name__ == "__main__":
     app.run(debug=True)
